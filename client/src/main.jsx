@@ -5,6 +5,7 @@ import { SocketProvider } from './context/Socket.jsx'
 import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Room from './pages/Room.jsx'
+import { PeerProvider } from './context/PeerConnection.jsx'
 
 const router=createBrowserRouter([
   {
@@ -19,6 +20,8 @@ const router=createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
 <SocketProvider>
-<RouterProvider router={router} />
+  <PeerProvider>
+  <RouterProvider router={router} />
+  </PeerProvider>
 </SocketProvider>
 )

@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@layer components{
+    .btn{
+        @apply h-[40px] w-[120px] border-none bg-red-400;
+    }
+}
+@tailwind utilities;

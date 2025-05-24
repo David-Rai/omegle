@@ -1,11 +1,19 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { SocketContext } from '../context/Socket'
+import { useContext } from 'react'
 
 const Home = () => {
     const nameRef = useRef(null)
     const authRef = useRef(null)
     const navigate = useNavigate()
+    const client=useContext(SocketContext)
 
+    useEffect(()=>{
+      client.on("Connect",()=>{
+        console.log(client.id)
+      })
+    },[])
 
     //handling the room join
     const handleJoin = () => {
@@ -20,11 +28,15 @@ const Home = () => {
     }
 
     return (
-        <main>
-            <div className="center">
-                <input type="text" placeholder='username' ref={nameRef} value="david" />
+        <main className='h-screen w-full flex items-center justify-center'>
+            <div className="center flex w-[80%] flex-col items-center justify-center gap-3">
+                <input type="text" placeholder='username' ref={nameRef}
+                    onChange={e => nameRef.current.value = e.target.value}
+                    value="david"
+                    className='w-full border-2 border-black p-3'
+                />
                 <p ref={authRef}></p>
-                <button onClick={handleJoin}>Join</button>
+                <button onClick={handleJoin} className='btn'>Join</button>
             </div>
         </main>
     )
