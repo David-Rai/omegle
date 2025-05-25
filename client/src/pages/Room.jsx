@@ -2,17 +2,16 @@ import React, { useEffect } from 'react'
 import { useState, useRef, useContext } from 'react'
 import { PeerContext } from '../context/PeerConnection'
 import { SocketContext } from '../context/Socket'
-import { io } from 'socket.io-client'
 
 const Room = () => {
+  const client = useContext(SocketContext)
   const peer = useContext(PeerContext)
-  const client=useContext(SocketContext)
+  const { peerConnection, createConnection, setPeerConnection } = peer
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
   const streamRef = useRef(null)
   const remoteRef = useRef(null)
-  const [clinetRoomName,setRoomName]=useState(null)
-  let { peerConnection, createConnection, setPeerConnection } = peer
+  const [clientRoomName, setClientRoomName] = useState(null)
 
   //Initial establish the media of the user
   useEffect(() => {
@@ -32,29 +31,29 @@ const Room = () => {
     })
 
     //onjoin
-    client.on("joined", roomName => {
-    setRoomName(roomName)
-    console.log(roomName)
-    })
+    client.on("joined", handleJoin)
 
     //when servers say to generate the offer
     client.on("create-offer", createOffer)
 
+
+    return () => {
+      client.off("joined",handleJoin)
+      client.off("create-offer", createOffer)
+    }
+    
   }, [])
 
-
-  //creating the offer SDP
+  //creating the room
   const createOffer = async () => {
-    if (!peerConnection) return
-    console.log("creating the offer")
+    console.log("Creating the offer")
+  };
 
-    await addShit()
-    const offer = await peerConnection.createOffer()
-    await peerConnection.setLocalDescription(offer)
-    console.log(offer)
-    client.emit("offer", { offer, roomName:clinetRoomName})
+  //handling the join
+  const handleJoin = (roomName) => {
+    setClientRoomName(roomName)
+    console.log(roomName)
   }
-
   //Adding the remote track to the peer instance
   const addShit = async () => {
     if (!peerConnection) return

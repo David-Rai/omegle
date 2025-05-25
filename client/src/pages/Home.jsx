@@ -1,19 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SocketContext } from '../context/Socket'
 import { useContext } from 'react'
 
 const Home = () => {
     const nameRef = useRef(null)
     const authRef = useRef(null)
     const navigate = useNavigate()
-    const client=useContext(SocketContext)
 
-    useEffect(()=>{
-      client.on("Connect",()=>{
-        console.log(client.id)
-      })
-    },[])
 
     //handling the room join
     const handleJoin = () => {
@@ -24,7 +17,7 @@ const Home = () => {
         }
         console.log(name)
 
-        navigate("room")
+        navigate("/room")
     }
 
     return (

@@ -35,6 +35,7 @@ io.on("connection", client => {
     else {
         const roomName = `${client.id}-${waiting[0].id}`//creating the unique roomName
 
+        console.log(roomName)
         //joining both users into same room
         client.join(roomName)
         waiting[0].join(roomName)

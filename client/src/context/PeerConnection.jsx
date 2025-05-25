@@ -22,6 +22,7 @@ export const PeerProvider = ({ children }) => {
 
   useEffect(() => {
     createConnection();
+    
     // Optional cleanup when PeerProvider unmounts
     return () => {
       if (peerConnection) {
@@ -35,4 +36,4 @@ export const PeerProvider = ({ children }) => {
       {children}
     </PeerContext.Provider>
   );
-};
+};  
