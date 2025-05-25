@@ -40,7 +40,10 @@ const Room = () => {
     socket.on("joined", handleJoin)
 
     //when servers say to generate the offer
-    // socket.on("create-offer", createOffer)
+    socket.on("create-offer", createOffer)
+
+    //manually connecting to the socket server
+    socket.connect()
 
 
     return () => {
@@ -53,6 +56,11 @@ const Room = () => {
   //creating the room
   const createOffer = async () => {
     console.log("Creating the offer")
+    await addShit()//adding the tracks of medias
+    
+    const offer=await peerConnection.createOffer()
+    await peerConnection.setLocalDescription(offer)
+    console.log(offer)
   };
 
   //handling the join
@@ -76,12 +84,12 @@ const Room = () => {
       }
     }
 
-    //ICE candidate generation and sending to the remote user
-    peerConnection.onicecandidate = async (e) => {
-      if (e.candidate) {
-        socket.emit("ice", { candidate: e.candidate, roomId: id })
-      }
-    }
+    // //ICE candidate generation and sending to the remote user
+    // peerConnection.onicecandidate = async (e) => {
+    //   if (e.candidate) {
+    //     socket.emit("ice", { candidate: e.candidate, roomId: id })
+    //   }
+    // }
 
   }
 

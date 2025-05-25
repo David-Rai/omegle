@@ -5,10 +5,10 @@ export const SocketContext = createContext(null)
 
 //socket provider function
 export const SocketProvider = ({ children }) => {
-    const socket = useRef(io("http://localhost:1111"))
+    const socket = useRef(io("http://localhost:1111",{autoConnect:false}))
 
     useEffect(() => {
-        socket.current = io("http://localhost:1111")
+        socket.current = io("http://localhost:1111",{autoConnect:false})
 
         return () => {
             socket.current.disconnect()
