@@ -78,8 +78,12 @@ const Room = () => {
     // Adding the new ICE Candidate
     socket.on("ice", handleICE);
 
+    //Getting the SDP answer
+    socket.on("answer",handleAnswer)
+
 
     return () => {
+      socket.off("answer",handleAnswer)
       socket.off("ice", handleICE)
       socket.off("joined", handleJoin)
       socket.off("create-offer", createOffer)
@@ -106,12 +110,18 @@ const Room = () => {
 
   }, [ice, peerConnection && peerConnection.remoteDescription]);
 
+  //Handling the answer
+  const handleAnswer=async (answer)=>{
+    if(answer){
+      console.log("got answer",answer)
+    }
+  }
   //Handling the candidate
   const handleICE = async (candidate) => {
     if (!peerConnection) return
 
     try {
-      console.log("new candidate", candidate)
+      // console.log("new candidate", candidate)
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       setIce(prev => [...prev, candidate]);
@@ -136,7 +146,13 @@ const Room = () => {
 
   //Handling the offer
   const handleOffer = async (offer) => {
-    console.log("got offer", offer)
+    if(offer){
+      console.log("got offer", offer)
+      await peerConnection.setRemoteDescription(offer)//setting as remote
+      const answer=await peerConnection.createAnswer()
+      console.log("answer created",answer)
+      socket.emit("answer",{answer,roomName:room.current})
+    }
   }
 
   //creating the room

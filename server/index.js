@@ -55,6 +55,11 @@ io.on("connection", client => {
         client.to(roomName).emit("offer",offer)
     })
 
+    //handling the SDP offer creation
+    client.on("answer",({answer,roomName})=>{
+        client.to(roomName).emit("answer",answer)
+    })
+
     //Handling the new ice candidate
     client.on("ice", ({ candidate, roomName }) => {
         io.to(roomName).emit("ice", candidate)
