@@ -1,5 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
+import { useRef } from "react";
 
+ 
 export const PeerContext = createContext(null);
 
 // STUN servers
@@ -12,27 +14,31 @@ const servers = {
 };
 
 export const PeerProvider = ({ children }) => {
-  const [peerConnection, setPeerConnection] = useState(null);
+  const connection = useRef(null)
+
+  const setPeerConnection = async (newPeer) => {
+    connection.current = newPeer
+  }
 
   const createConnection = () => {
-    const connection = new RTCPeerConnection(servers);
-    setPeerConnection(connection);
-    return connection;
+    const newPeer = new RTCPeerConnection(servers);
+    setPeerConnection(newPeer);
+    return newPeer;
   };
 
   useEffect(() => {
     createConnection();
-    
+
     // Optional cleanup when PeerProvider unmounts
     return () => {
-      if (peerConnection) {
-        peerConnection.close();
+      if (connection.current) {
+        connection.current.close();
       }
     };
   }, []);
 
   return (
-    <PeerContext.Provider value={{ peerConnection, setPeerConnection, createConnection }}>
+    <PeerContext.Provider value={{ connection, setPeerConnection, createConnection }}>
       {children}
     </PeerContext.Provider>
   );

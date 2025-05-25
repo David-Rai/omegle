@@ -48,6 +48,13 @@ io.on("connection", client => {
         waiting.pop()//clearing the waiting list
     }
 
+
+    //WebRTC connection handling
+    client.on("offer",({offer,roomName})=>{
+        console.log(roomName)
+        client.to(roomName).emit("offer",offer)
+    })
+
     client.on("message", ({ message, roomName }) => {
         io.to(roomName).emit("message", message)
     })
