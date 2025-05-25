@@ -8,8 +8,7 @@ import { RoomContext } from '../context/RoomName'
 const Room = () => {
   const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
-  const rooms = useContext(RoomContext)
-  const {roomName,updateRoomName}=rooms
+  const room = useContext(RoomContext)
   const { connection, createConnection, setPeerConnection } = peer
   const peerConnection = connection.current
   const peer1Ref = useRef(null)
@@ -18,12 +17,15 @@ const Room = () => {
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
-  // const [clientRoomName, setClientRoomName] = useState(null)
+
+  useEffect(() => {
+    console.log(room)
+  }, [room])
 
   //Initial establish the media of the user
   useEffect(() => {
     // console.log(connection)
-    console.log(rooms)
+    console.log(room)
 
     //adding the local medias
     async function getMedias() {
@@ -143,13 +145,13 @@ const Room = () => {
 
     const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
-    socket.emit("offer", { offer, roomName })
+    socket.emit("offer", { offer, roomName:room.current })
     console.log("Created offer", offer)
   };
 
   //handling the join
   const handleJoin = (roomName) => {
-    updateRoomName(roomName)
+    room.current = roomName
     console.log(roomName)
   }
 
@@ -172,7 +174,7 @@ const Room = () => {
     //ICE candidate generation and sending to the remote user
     peerConnection.onicecandidate = async (e) => {
       if (e.candidate) {
-        socket.emit("ice", { candidate: e.candidate, roomName})
+        socket.emit("ice", { candidate: e.candidate, roomName:room.current })
       }
     }
 
