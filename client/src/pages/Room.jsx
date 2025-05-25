@@ -4,7 +4,7 @@ import { PeerContext } from '../context/PeerConnection'
 import { SocketContext } from '../context/Socket'
 
 const Room = () => {
-  const client = useContext(SocketContext)
+  const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
   const { peerConnection, createConnection, setPeerConnection } = peer
   const peer1Ref = useRef(null)
@@ -16,6 +16,8 @@ const Room = () => {
   //Initial establish the media of the user
   useEffect(() => {
 
+    console.log(socket)
+
     //adding the local medias
     async function getMedias() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
@@ -26,23 +28,27 @@ const Room = () => {
 
 
     //Handling the socket connections
-    client.on("connect", () => {
-      console.log("connected to :", client.id)
-    })
+    if (socket.connected) {
+      console.log("Already connected:", socket.id);
+    } else {
+      socket.on("connect", () => {
+        console.log("Connected to:", socket.id);
+      });
+    }
 
     //onjoin
-    client.on("joined", handleJoin)
+    socket.on("joined", handleJoin)
 
     //when servers say to generate the offer
-    client.on("create-offer", createOffer)
+    // socket.on("create-offer", createOffer)
 
 
     return () => {
-      client.off("joined",handleJoin)
-      client.off("create-offer", createOffer)
+      socket.off("joined", handleJoin)
+      socket.off("create-offer", createOffer)
     }
-    
-  }, [])
+
+  }, [socket])
 
   //creating the room
   const createOffer = async () => {
