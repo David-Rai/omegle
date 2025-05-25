@@ -19,13 +19,13 @@ const Room = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    console.log(room)
-  }, [room])
+    console.log(peerConnection.connectionState)
+  }, [peerConnection.connectionState])
+
 
   //Initial establish the media of the user
   useEffect(() => {
     // console.log(connection)
-    console.log(room)
 
     //adding the local medias
     async function getMedias() {
@@ -45,24 +45,6 @@ const Room = () => {
       });
     }
 
-    peerConnection.onconnectionstatechange = () => {
-      console.log("Connection state:", peerConnection.connectionState);
-
-      switch (peerConnection.connectionState) {
-        case "connected":
-          console.log("✅ Peers are connected");
-          break;
-        case "disconnected":
-        case "failed":
-          console.log("⚠️ Peers are disconnected or connection failed");
-          break;
-        case "closed":
-          console.log("❌ Connection closed");
-          break;
-      }
-    }
-
-
     //onjoin
     socket.on("joined", handleJoin)
 
@@ -79,11 +61,11 @@ const Room = () => {
     socket.on("ice", handleICE);
 
     //Getting the SDP answer
-    socket.on("answer",handleAnswer)
+    socket.on("answer", handleAnswer)
 
 
     return () => {
-      socket.off("answer",handleAnswer)
+      socket.off("answer", handleAnswer)
       socket.off("ice", handleICE)
       socket.off("joined", handleJoin)
       socket.off("create-offer", createOffer)
@@ -111,9 +93,10 @@ const Room = () => {
   }, [ice, peerConnection && peerConnection.remoteDescription]);
 
   //Handling the answer
-  const handleAnswer=async (answer)=>{
-    if(answer){
-      console.log("got answer",answer)
+  const handleAnswer = async (answer) => {
+    if (answer) {
+      console.log("got answer", answer)
+      await peerConnection.setRemoteDescription(answer)
     }
   }
   //Handling the candidate
@@ -146,12 +129,12 @@ const Room = () => {
 
   //Handling the offer
   const handleOffer = async (offer) => {
-    if(offer){
+    if (offer) {
       console.log("got offer", offer)
       await peerConnection.setRemoteDescription(offer)//setting as remote
-      const answer=await peerConnection.createAnswer()
-      console.log("answer created",answer)
-      socket.emit("answer",{answer,roomName:room.current})
+      const answer = await peerConnection.createAnswer()
+      console.log("answer created", answer)
+      socket.emit("answer", { answer, roomName: room.current })
     }
   }
 
@@ -161,7 +144,7 @@ const Room = () => {
 
     const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
-    socket.emit("offer", { offer, roomName:room.current })
+    socket.emit("offer", { offer, roomName: room.current })
     console.log("Created offer", offer)
   };
 
@@ -190,7 +173,7 @@ const Room = () => {
     //ICE candidate generation and sending to the remote user
     peerConnection.onicecandidate = async (e) => {
       if (e.candidate) {
-        socket.emit("ice", { candidate: e.candidate, roomName:room.current })
+        socket.emit("ice", { candidate: e.candidate, roomName: room.current })
       }
     }
 
@@ -203,9 +186,9 @@ const Room = () => {
   return (
     <main>
       <button onClick={handleRefresh} className='btn cursor-pointer'>Refresh</button>
-      <div className="videos">
-        <video autoPlay playsInline ref={peer1Ref}></video>
-        <video autoPlay playsInline ref={peer2Ref}></video>
+      <div className="videos flex">
+        <video autoPlay playsInline ref={peer1Ref} className='w-1/2'></video>
+        <video autoPlay playsInline ref={peer2Ref} className='bg-black'></video>
       </div>
     </main>
   )
