@@ -55,8 +55,9 @@ io.on("connection", client => {
         client.to(roomName).emit("offer",offer)
     })
 
-    client.on("message", ({ message, roomName }) => {
-        io.to(roomName).emit("message", message)
+    //Handling the new ice candidate
+    client.on("ice", ({ candidate, roomName }) => {
+        io.to(roomName).emit("ice", candidate)
     })
 })
 

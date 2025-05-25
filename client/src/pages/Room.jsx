@@ -2,23 +2,24 @@ import React, { useEffect } from 'react'
 import { useState, useRef, useContext } from 'react'
 import { PeerContext } from '../context/PeerConnection'
 import { SocketContext } from '../context/Socket'
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const Room = () => {
   const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
-  const {connection, createConnection, setPeerConnection } = peer
-  const peerConnection=connection.current
+  const { connection, createConnection, setPeerConnection } = peer
+  const peerConnection = connection.current
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
   const streamRef = useRef(null)
   const remoteRef = useRef(null)
-  const navigate=useNavigate()
+  const [ice, setIce] = useState([])
+  const navigate = useNavigate()
   const [clientRoomName, setClientRoomName] = useState(null)
 
   //Initial establish the media of the user
   useEffect(() => {
-console.log(connection)
+    console.log(connection)
 
     //adding the local medias
     async function getMedias() {
@@ -38,6 +39,24 @@ console.log(connection)
       });
     }
 
+    peerConnection.onconnectionstatechange = () => {
+      console.log("Connection state:", peerConnection.connectionState);
+
+      switch (peerConnection.connectionState) {
+          case "connected":
+              console.log("✅ Peers are connected");
+              break;
+          case "disconnected":
+          case "failed":
+              console.log("⚠️ Peers are disconnected or connection failed");
+              break;
+          case "closed":
+              console.log("❌ Connection closed");
+              break;
+      }
+  }
+
+
     //onjoin
     socket.on("joined", handleJoin)
 
@@ -45,31 +64,80 @@ console.log(connection)
     socket.on("create-offer", createOffer)
 
     //Getting the offer created
-    socket.on("offer",handleOffer)
+    socket.on("offer", handleOffer)
 
     //manually connecting to the socket server
     socket.connect()
 
+    // Adding the new ICE Candidate
+    socket.on("ice", handleICE);
+
 
     return () => {
+      socket.off("ice",handleICE)
       socket.off("joined", handleJoin)
       socket.off("create-offer", createOffer)
     }
 
   }, [socket])
 
+  //Add the ICE Candidate when remoteDescription is set
+  useEffect(() => {
+    if (!peerConnection) {
+      return
+    }
+    if (
+      peerConnection.remoteDescription &&
+      peerConnection.remoteDescription.type &&
+      ice.length > 0
+    ) {
+      console.log("📥 Flushing buffered ICE candidates");
+      addICE();
+      setIce([]); // Clear after adding
+    }
+
+  }, [ice, peerConnection && peerConnection.remoteDescription]);
+
+  //Handling the candidate
+  const handleICE = async (candidate) => {
+    if (!peerConnection) return
+
+    try {
+      console.log("new candidate",candidate)
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (error) {
+      setIce(prev => [...prev, candidate]);
+    }
+  };
+
+  //Adding the ICE candidate
+  const addICE = async () => {
+    if (!peerConnection) return
+
+    for (const candidate of ice) {
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        console.log("🧊 Buffered ICE candidate added");
+      } catch (e) {
+        console.error("❌ Error adding ICE:", e);
+      }
+    }
+
+  }
+
+
   //Handling the offer
-  const handleOffer=async (offer)=>{
+  const handleOffer = async (offer) => {
     console.log(offer)
   }
   //creating the room
   const createOffer = async () => {
     console.log("Creating the offer")
     await addShit()//adding the tracks of medias
-    
-    const offer=await peerConnection.createOffer()
+
+    const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
-    socket.emit("offer",{offer,roomName:clientRoomName})
+    socket.emit("offer", { offer, roomName: clientRoomName })
     console.log(offer)
   };
 
@@ -78,6 +146,7 @@ console.log(connection)
     setClientRoomName(roomName)
     console.log(roomName)
   }
+
   //Adding the remote track to the peer instance
   const addShit = async () => {
     if (!peerConnection) return
@@ -94,21 +163,22 @@ console.log(connection)
       }
     }
 
-    // //ICE candidate generation and sending to the remote user
-    // peerConnection.onicecandidate = async (e) => {
-    //   if (e.candidate) {
-    //     socket.emit("ice", { candidate: e.candidate, roomId: id })
-    //   }
-    // }
+    //ICE candidate generation and sending to the remote user
+    peerConnection.onicecandidate = async (e) => {
+      if (e.candidate) {
+        socket.emit("ice", { candidate: e.candidate, roomName:clientRoomName})
+      }
+    }
 
   }
-const handleRefresh=()=>{
-  navigate("/")
-  window.location.reload()
-}
+
+  const handleRefresh = () => {
+    navigate("/")
+    window.location.reload()
+  }
   return (
     <main>
-    <button onClick={handleRefresh} className='absolute top-2 left-2 btn'>Refresh</button>
+      <button onClick={handleRefresh} className='absolute top-2 left-2 btn cursor-pointer'>Refresh</button>
       <div className="videos">
         <video autoPlay playsInline ref={peer1Ref}></video>
         <video autoPlay playsInline ref={peer2Ref}></video>
