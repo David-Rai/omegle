@@ -3,10 +3,13 @@ import { useState, useRef, useContext } from 'react'
 import { PeerContext } from '../context/PeerConnection'
 import { SocketContext } from '../context/Socket'
 import { useNavigate } from 'react-router-dom'
+import { RoomContext } from '../context/RoomName'
 
 const Room = () => {
   const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
+  const rooms = useContext(RoomContext)
+  const {roomName,updateRoomName}=rooms
   const { connection, createConnection, setPeerConnection } = peer
   const peerConnection = connection.current
   const peer1Ref = useRef(null)
@@ -15,11 +18,12 @@ const Room = () => {
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
-  const [clientRoomName, setClientRoomName] = useState(null)
+  // const [clientRoomName, setClientRoomName] = useState(null)
 
   //Initial establish the media of the user
   useEffect(() => {
-    console.log(connection)
+    // console.log(connection)
+    console.log(rooms)
 
     //adding the local medias
     async function getMedias() {
@@ -43,18 +47,18 @@ const Room = () => {
       console.log("Connection state:", peerConnection.connectionState);
 
       switch (peerConnection.connectionState) {
-          case "connected":
-              console.log("✅ Peers are connected");
-              break;
-          case "disconnected":
-          case "failed":
-              console.log("⚠️ Peers are disconnected or connection failed");
-              break;
-          case "closed":
-              console.log("❌ Connection closed");
-              break;
+        case "connected":
+          console.log("✅ Peers are connected");
+          break;
+        case "disconnected":
+        case "failed":
+          console.log("⚠️ Peers are disconnected or connection failed");
+          break;
+        case "closed":
+          console.log("❌ Connection closed");
+          break;
       }
-  }
+    }
 
 
     //onjoin
@@ -74,9 +78,11 @@ const Room = () => {
 
 
     return () => {
-      socket.off("ice",handleICE)
+      socket.off("ice", handleICE)
       socket.off("joined", handleJoin)
       socket.off("create-offer", createOffer)
+      socket.off("offer", handleOffer)
+      socket.off("ice", handleICE)
     }
 
   }, [socket])
@@ -103,7 +109,7 @@ const Room = () => {
     if (!peerConnection) return
 
     try {
-      console.log("new candidate",candidate)
+      console.log("new candidate", candidate)
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       setIce(prev => [...prev, candidate]);
@@ -128,22 +134,22 @@ const Room = () => {
 
   //Handling the offer
   const handleOffer = async (offer) => {
-    console.log(offer)
+    console.log("got offer", offer)
   }
+
   //creating the room
   const createOffer = async () => {
-    console.log("Creating the offer")
     await addShit()//adding the tracks of medias
 
     const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
-    socket.emit("offer", { offer, roomName: clientRoomName })
-    console.log(offer)
+    socket.emit("offer", { offer, roomName })
+    console.log("Created offer", offer)
   };
 
   //handling the join
   const handleJoin = (roomName) => {
-    setClientRoomName(roomName)
+    updateRoomName(roomName)
     console.log(roomName)
   }
 
@@ -166,7 +172,7 @@ const Room = () => {
     //ICE candidate generation and sending to the remote user
     peerConnection.onicecandidate = async (e) => {
       if (e.candidate) {
-        socket.emit("ice", { candidate: e.candidate, roomName:clientRoomName})
+        socket.emit("ice", { candidate: e.candidate, roomName})
       }
     }
 
@@ -178,7 +184,7 @@ const Room = () => {
   }
   return (
     <main>
-      <button onClick={handleRefresh} className='absolute top-2 left-2 btn cursor-pointer'>Refresh</button>
+      <button onClick={handleRefresh} className='btn cursor-pointer'>Refresh</button>
       <div className="videos">
         <video autoPlay playsInline ref={peer1Ref}></video>
         <video autoPlay playsInline ref={peer2Ref}></video>

@@ -21,8 +21,8 @@ const Home = () => {
     }
 
     return (
-        <main className='h-screen w-full flex items-center justify-center'>
-            <div className="center flex w-[80%] flex-col items-center justify-center gap-3">
+        <main className='h-screen w-full flex items-center justify-center bg-slate-900'>
+            <div className="center flex w-[80%] flex-col items-center justify-center gap-3 md:w-[60%] lg:w-[40%]">
                 <input type="text" placeholder='username' ref={nameRef}
                     onChange={e => nameRef.current.value = e.target.value}
                     value="david"
