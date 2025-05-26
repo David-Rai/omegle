@@ -63,6 +63,11 @@ io.on("connection", client => {
     client.on("ice", ({ candidate, roomName }) => {
         io.to(roomName).emit("ice", candidate)
     })
+
+    //stoping the calls
+    client.on("stop",({roomName})=>{
+        client.to(roomName).emit("leaved","next should be implemented")
+    })
 })
 
 //routing

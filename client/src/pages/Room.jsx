@@ -9,7 +9,7 @@ const Room = () => {
   const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
   const room = useContext(RoomContext)
-  const { connection, createConnection } = peer
+  const { connection, createConnection, endConnection } = peer
   // let peerConnection =connection.current
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
@@ -71,6 +71,8 @@ const Room = () => {
       console.log(`connect_error due to ${err.message}`);
     });
 
+    //when another users leaves
+    socket.on("leaved",handleLeave)
 
     return () => {
       socket.off("answer", handleAnswer)
@@ -79,6 +81,7 @@ const Room = () => {
       socket.off("create-offer", createOffer)
       socket.off("offer", handleOffer)
       socket.off("ice", handleICE)
+      socket.off("leaved",handleLeave)
     }
 
   }, [socket])
@@ -101,10 +104,18 @@ const Room = () => {
   }, [ice, connection.current && connection.currentremoteDescription]);
 
   //Handling when peer intensionly leaves
-  const handleLeave = () => {
+  const handleLeave = (message) => {
+    if(message){
+    console.log(message)
+    // handleNext()
+    }
     console.log("another peer leaved intensionly")
   }
 
+  const handleNext=()=>{
+    handleStop()
+    handleStart()
+  }
   //Handling the answer
   const handleAnswer = async (answer) => {
     if (answer) {
@@ -144,12 +155,14 @@ const Room = () => {
   //Handling the offer
   const handleOffer = async (offer) => {
     if (offer) {
-      await addShit()//adding the tracks of medias
       console.log("got offer", offer)
       await connection.current.setRemoteDescription(offer)//setting as remote
-      await addICE()
+
+      await addShit()//adding the tracks of medias
       const answer = await connection.current.createAnswer()
       await connection.current.setLocalDescription(answer)
+
+      await addICE()
       console.log("answer created", answer)
       socket.emit("answer", { answer, roomName: room.current })
     }
@@ -190,7 +203,7 @@ const Room = () => {
           peer2Ref.current.srcObject = remoteRef.current;
         }
         remoteRef.current.addTrack(e.track);
-        // peer2Ref.current.srcObject = remoteRef.current;
+        peer2Ref.current.srcObject = remoteRef.current;
         console.log("🔊 Remote stream updated:", remoteRef.current);
       }
     };
@@ -207,15 +220,20 @@ const Room = () => {
 
   //Starting WebRTC connection
   const handleStart = async () => {
-    console.log("starting the connection")
+    console.log("starting the RTC connection")
+
     //manually connecting to the socket server and the webRTC API
     createConnection()
-    connection.current = connection.current
-    console.log(connection.current)
-    console.log(connection.current)
     socket.connect()
   }
 
+  //Ending the RTC connection
+  const handleStop = () => {
+    console.log("Ending the connection")
+    endConnection()
+    socket.emit("stop",{roomName:room.current})
+    socket.disconnect()
+  }
   const handleRefresh = () => {
     navigate("/")
     window.location.reload()
@@ -233,7 +251,7 @@ const Room = () => {
       {/* Start,Stop,Next user features */}
       <div className="controls">
         <button className='btn bg-green-500' onClick={handleStart}>Start</button>
-        <button className='btn bg-orange-500'>Stop</button>
+        <button className='btn bg-orange-500' onClick={handleStop}>Stop</button>
       </div>
     </main>
   )
