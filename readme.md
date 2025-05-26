@@ -5,6 +5,8 @@
 # Omegle (P2P) Connection
 I made this for the practise and understanding the core architecture of omegle random video chat and the webRTC architecture
 
+<img src="./architecture/main.jpg">
+
 # Technologies 
 ## Frontend
 - React js
