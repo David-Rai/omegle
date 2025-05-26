@@ -22,6 +22,10 @@ const Room = () => {
     console.log(peerConnection.connectionState)
   }, [peerConnection.connectionState])
 
+  useEffect(() => {
+    console.log(peer2Ref.current)
+  }, [peer2Ref.current])
+
 
   //Initial establish the media of the user
   useEffect(() => {
@@ -104,7 +108,7 @@ const Room = () => {
     if (!peerConnection) return
 
     try {
-      // console.log("new candidate", candidate)
+      console.log("new candidate", candidate)
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       setIce(prev => [...prev, candidate]);
@@ -130,8 +134,9 @@ const Room = () => {
   //Handling the offer
   const handleOffer = async (offer) => {
     if (offer) {
-      console.log("got offer", offer)
+      await addShit()//adding the tracks of medias
       await peerConnection.setRemoteDescription(offer)//setting as remote
+      await addICE()
       const answer = await peerConnection.createAnswer()
       console.log("answer created", answer)
       socket.emit("answer", { answer, roomName: room.current })
@@ -158,6 +163,8 @@ const Room = () => {
   const addShit = async () => {
     if (!peerConnection) return
 
+    console.log("adding the track")
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => {//add video,audio to peerConnection
         peerConnection.addTrack(track, streamRef.current)
@@ -165,8 +172,11 @@ const Room = () => {
     }
 
     peerConnection.ontrack = async (e) => {
-      if (e.streams[0]) {
-        peer2Ref.current.srcObject = e.streams[0];
+      if (e.track) {
+        console.log("remote track",e.track)
+        const stream = new MediaStream()
+        stream.addTrack(e.track)
+        peer2Ref.current.srcObject = stream
       }
     }
 
