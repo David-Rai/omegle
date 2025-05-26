@@ -16,7 +16,7 @@ const Room = () => {
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
-  const [isStarted,setIsStarted]=useState(false)
+  const [isStarted, setIsStarted] = useState(false)
 
 
   //Initial establish the media of the user
@@ -32,13 +32,16 @@ const Room = () => {
 
     //PeerConnection connection state handling
     if (connection.current) {
-      connection.current.onconnectionstatechange = () => {
-        const state = connection.current.connectionState
-        if (state === "disconnected" || state === "failed" || state === "closed") {
+      connection.current.oniceconnectionstatechange = () => {
+        const state = connection.current.iceConnectionState;
+        console.log('ICE connection state:', state);
+
+        if (state === 'disconnected' || state === 'failed' || state === 'closed') {
           handleLeave()
         }
       }
     }
+
     //Handling the socket connections
     if (socket.connected) {
       console.log("Already connected:", socket.id);
@@ -231,7 +234,7 @@ const Room = () => {
 
   //Ending the RTC connection
   const handleStop = () => {
-    if(!socket.connected && !connection.current) return
+    if (!socket.connected && !connection.current) return
 
     setIsStarted(false)
     endConnection()
@@ -256,10 +259,10 @@ const Room = () => {
 
       {/* Start,Stop,Next user features */}
       <div className="controls">
-        <button className='btn bg-green-500' onClick={()=> isStarted ? handleNext() : handleStart()}>
-        {
-        isStarted ? "Next" : "Start"
-        }
+        <button className='btn bg-green-500' onClick={() => isStarted ? handleNext() : handleStart()}>
+          {
+            isStarted ? "Next" : "Start"
+          }
         </button>
 
         <button className='btn bg-orange-500' onClick={handleStop}>Stop</button>

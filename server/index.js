@@ -41,9 +41,14 @@ io.on("connection", client => {
         const roomName = `${client.id}-${waiting[0].id}`//creating the unique roomName
 
         console.log(roomName)
+
         //joining both users into same room
         client.join(roomName)
         waiting[0].join(roomName)
+
+        //storing the room
+        client.roomName=roomName
+        waiting[0].roomName=roomName
 
         waiting[0].emit("create-offer")//saying to generate the offer
         
@@ -73,6 +78,10 @@ io.on("connection", client => {
     //stoping the calls
     client.on("stop",({roomName})=>{
         client.to(roomName).emit("leaved","next should be implemented")
+    })
+
+    client.on("disconnect",()=>{
+        client.to(client.roomName).emit("leaved","next should be implemented")
     })
 })
 
