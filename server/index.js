@@ -21,7 +21,6 @@ const io = new Server(server, {
 
 //waiting queue
 let waiting = []
-let roomName = "codexroom"
 
 //soccket handling
 io.on("connection", client => {

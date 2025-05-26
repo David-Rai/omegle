@@ -18,18 +18,9 @@ const Room = () => {
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
 
-  useEffect(() => {
-    console.log(peerConnection.connectionState)
-  }, [peerConnection.connectionState])
-
-    // useEffect(() => {
-    //   console.log(peer2Ref.current)
-    // }, [peer2Ref.current])
-
 
   //Initial establish the media of the user
   useEffect(() => {
-    // console.log(connection)
 
     //adding the local medias
     async function getMedias() {
@@ -38,6 +29,14 @@ const Room = () => {
       streamRef.current = stream
     }
     getMedias()
+
+    //PeerConnection connection state handling
+    connection.current.onconnectionstatechange = () => {
+      const state = peerConnection.connectionState
+      if (state === "disconnected" || state === "failed" || state === "closed") {
+        handleLeave()
+      }
+    }
 
 
     //Handling the socket connections
@@ -100,6 +99,11 @@ const Room = () => {
 
   }, [ice, peerConnection && peerConnection.remoteDescription]);
 
+  //Handling when peer intensionly leaves
+  const handleLeave = () => {
+  console.log("another peer leaved intensionly")
+  }
+
   //Handling the answer
   const handleAnswer = async (answer) => {
     if (answer) {
@@ -140,7 +144,7 @@ const Room = () => {
   const handleOffer = async (offer) => {
     if (offer) {
       await addShit()//adding the tracks of medias
-      console.log("got offer",offer)
+      console.log("got offer", offer)
       await peerConnection.setRemoteDescription(offer)//setting as remote
       await addICE()
       const answer = await peerConnection.createAnswer()
@@ -189,7 +193,7 @@ const Room = () => {
         console.log("🔊 Remote stream updated:", remoteRef.current);
       }
     };
-    
+
 
     //ICE candidate generation and sending to the remote user
     peerConnection.onicecandidate = async (e) => {
@@ -209,7 +213,7 @@ const Room = () => {
       <button onClick={handleRefresh} className='btn cursor-pointer'>Refresh</button>
       <div className="videos flex">
         <video autoPlay playsInline ref={peer1Ref} className='w-1/2'></video>
-        <video autoPlay playsInline ref={peer2Ref} className='bg-black'></video>
+        <video autoPlay playsInline ref={peer2Ref} className='bg-black w-1/2'></video>
       </div>
     </main>
   )
