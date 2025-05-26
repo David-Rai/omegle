@@ -1,38 +1,63 @@
-import React, { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
+import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-    const nameRef = useRef(null)
-    const authRef = useRef(null)
-    const navigate = useNavigate()
+  const nameRef = useRef(null); // Reference to the username input
+  const authRef = useRef(null); // Reference to show error message
+  const navigate = useNavigate();
 
+  // Handle pressing Enter key to join room
+  useEffect(() => {
+    const handleEnter = (e) => {
+      if (e.key === 'Enter') {
+        handleJoin();
+      }
+    };
 
-    //handling the room join
-    const handleJoin = () => {
-        const name = nameRef.current.value
+    document.addEventListener('keydown', handleEnter);
+    return () => document.removeEventListener('keydown', handleEnter);
+  }, []);
 
-        if (name.trim() === "") {
-            return authRef.current.innerText = "name is required"
-        }
-        console.log(name)
+  // Handle join button click
+  const handleJoin = () => {
+    const name = nameRef.current.value.trim();
 
-        navigate("/room")
+    if (!name) {
+      authRef.current.innerText = 'Name is required';
+      authRef.current.classList.add('text-red-500');
+      return;
     }
 
-    return (
-        <main className='h-screen w-full flex items-center justify-center bg-slate-900'>
-            <div className="center flex w-[80%] flex-col items-center justify-center gap-3 md:w-[60%] lg:w-[40%]">
-                <input type="text" placeholder='username' ref={nameRef}
-                    onChange={e => nameRef.current.value = e.target.value}
-                    value="david"
-                    className='w-full border-2 border-black p-3'
-                />
-                <p ref={authRef}></p>
-                <button onClick={handleJoin} className='btn'>Join</button>
-            </div>
-        </main>
-    )
-}
+    authRef.current.innerText = '';
+    navigate('/room');
+  };
 
-export default Home
+  return (
+    <main className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-4 items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Enter Room</h1>
+
+        {/* Username Input */}
+        <input
+          type="text"
+          placeholder="Enter your name"
+          ref={nameRef}
+          className="w-full px-4 py-3 border-2 border-blue-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+
+        {/* Error Message */}
+        <p ref={authRef} className="h-4 text-sm text-red-500"></p>
+
+        {/* Join Button */}
+        <button
+          onClick={handleJoin}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition duration-300"
+        >
+          Join
+        </button>
+      </div>
+    </main>
+  );
+};
+
+export default Home;

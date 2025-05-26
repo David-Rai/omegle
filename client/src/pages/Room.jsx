@@ -248,26 +248,49 @@ const Room = () => {
     window.location.reload()
   }
   return (
-    <main>
-      <button onClick={handleRefresh} className='btn cursor-pointer'>Refresh</button>
+<main className="w-full h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative">
+  {/* Refresh Button */}
+  <button
+    onClick={handleRefresh}
+    className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-md"
+  >
+    Refresh
+  </button>
 
-      {/* Videos of your and remote user */}
-      <div className="videos flex">
-        <video autoPlay playsInline ref={peer1Ref} className='w-1/2'></video>
-        <video autoPlay playsInline ref={peer2Ref} className='bg-black w-1/2'></video>
-      </div>
+  {/* Video Section */}
+  <div className="flex flex-col md:flex-row items-center justify-center w-full h-full px-4 gap-4">
+    <video
+      autoPlay
+      playsInline
+      ref={peer1Ref}
+      className="rounded-xl w-full md:w-1/2 max-h-[300px] md:max-h-[500px] object-cover bg-black shadow-lg"
+    ></video>
+    <video
+      autoPlay
+      playsInline
+      ref={peer2Ref}
+      className="rounded-xl w-full md:w-1/2 max-h-[300px] md:max-h-[500px] object-cover bg-black shadow-lg"
+    ></video>
+  </div>
 
-      {/* Start,Stop,Next user features */}
-      <div className="controls">
-        <button className='btn bg-green-500' onClick={() => isStarted ? handleNext() : handleStart()}>
-          {
-            isStarted ? "Next" : "Start"
-          }
-        </button>
+  {/* Control Buttons */}
+  <div className="fixed bottom-4 w-full flex items-center justify-center gap-4 px-4">
+    <button
+      onClick={() => isStarted ? handleNext() : handleStart()}
+      className="btn flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg"
+    >
+      {isStarted ? "Next" : "Start"}
+    </button>
 
-        <button className='btn bg-orange-500' onClick={handleStop}>Stop</button>
-      </div>
-    </main>
+    <button
+      onClick={handleStop}
+      className="btn  flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg"
+    >
+      Stop
+    </button>
+  </div>
+</main>
+
   )
 }
 
