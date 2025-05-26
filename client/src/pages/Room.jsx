@@ -10,7 +10,7 @@ const Room = () => {
   const peer = useContext(PeerContext)
   const room = useContext(RoomContext)
   const { connection, createConnection } = peer
-  let peerConnection =connection.current
+  // let peerConnection =connection.current
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
   const streamRef = useRef(null)
@@ -33,7 +33,7 @@ const Room = () => {
     //PeerConnection connection state handling
     if (connection.current) {
       connection.current.onconnectionstatechange = () => {
-        const state = peerConnection.connectionState
+        const state = connection.current.connectionState
         if (state === "disconnected" || state === "failed" || state === "closed") {
           handleLeave()
         }
@@ -85,12 +85,12 @@ const Room = () => {
 
   //Add the ICE Candidate when remoteDescription is set
   useEffect(() => {
-    if (!peerConnection) {
+    if (!connection.current) {
       return
     }
     if (
-      peerConnection.remoteDescription &&
-      peerConnection.remoteDescription.type &&
+      connection.current.remoteDescription &&
+      connection.current.remoteDescription.type &&
       ice.length > 0
     ) {
       console.log("📥 Flushing buffered ICE candidates");
@@ -98,7 +98,7 @@ const Room = () => {
       setIce([]); // Clear after adding
     }
 
-  }, [ice, peerConnection && peerConnection.remoteDescription]);
+  }, [ice, connection.current && connection.currentremoteDescription]);
 
   //Handling when peer intensionly leaves
   const handleLeave = () => {
@@ -109,17 +109,17 @@ const Room = () => {
   const handleAnswer = async (answer) => {
     if (answer) {
       console.log("got answer", answer)
-      await peerConnection.setRemoteDescription(answer)
+      await connection.current.setRemoteDescription(answer)
       await addICE()
     }
   }
   //Handling the candidate
   const handleICE = async (candidate) => {
-    if (!peerConnection) return
+    if (!connection.current) return
 
     try {
       // console.log("new candidate", candidate)
-      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      await connection.current.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       setIce(prev => [...prev, candidate]);
     }
@@ -127,11 +127,11 @@ const Room = () => {
 
   //Adding the ICE candidate
   const addICE = async () => {
-    if (!peerConnection) return
+    if (!connection.current) return
 
     for (const candidate of ice) {
       try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        await connection.current.addIceCandidate(new RTCIceCandidate(candidate));
         console.log("🧊 Buffered ICE candidate added");
       } catch (e) {
         console.error("❌ Error adding ICE:", e);
@@ -146,10 +146,10 @@ const Room = () => {
     if (offer) {
       await addShit()//adding the tracks of medias
       console.log("got offer", offer)
-      await peerConnection.setRemoteDescription(offer)//setting as remote
+      await connection.current.setRemoteDescription(offer)//setting as remote
       await addICE()
-      const answer = await peerConnection.createAnswer()
-      await peerConnection.setLocalDescription(answer)
+      const answer = await connection.current.createAnswer()
+      await connection.current.setLocalDescription(answer)
       console.log("answer created", answer)
       socket.emit("answer", { answer, roomName: room.current })
     }
@@ -159,8 +159,8 @@ const Room = () => {
   const createOffer = async () => {
     await addShit()//adding the tracks of medias
 
-    const offer = await peerConnection.createOffer()
-    await peerConnection.setLocalDescription(offer)
+    const offer = await connection.current.createOffer()
+    await connection.current.setLocalDescription(offer)
     socket.emit("offer", { offer, roomName: room.current })
     console.log("Created offer", offer)
   };
@@ -173,17 +173,17 @@ const Room = () => {
 
   //Adding the remote track to the peer instance
   const addShit = async () => {
-    if (!peerConnection) return
+    if (!connection.current) return
 
     console.log("adding the track")
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => {//add video,audio to peerConnection
-        peerConnection.addTrack(track, streamRef.current)
+        connection.current.addTrack(track, streamRef.current)
       })
     }
 
-    peerConnection.ontrack = async (e) => {
+    connection.current.ontrack = async (e) => {
       if (e.track) {
         if (!remoteRef.current) {
           remoteRef.current = new MediaStream();
@@ -197,7 +197,7 @@ const Room = () => {
 
 
     //ICE candidate generation and sending to the remote user
-    peerConnection.onicecandidate = async (e) => {
+    connection.current.onicecandidate = async (e) => {
       if (e.candidate) {
         socket.emit("ice", { candidate: e.candidate, roomName: room.current })
       }
@@ -209,9 +209,9 @@ const Room = () => {
   const handleStart = async () => {
     console.log("starting the connection")
     //manually connecting to the socket server and the webRTC API
-     createConnection()
-     peerConnection=connection.current
-    console.log(peerConnection)
+    createConnection()
+    connection.current = connection.current
+    console.log(connection.current)
     console.log(connection.current)
     socket.connect()
   }
