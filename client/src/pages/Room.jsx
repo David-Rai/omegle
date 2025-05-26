@@ -155,10 +155,11 @@ const Room = () => {
   //Handling the offer
   const handleOffer = async (offer) => {
     if (offer) {
+      await addShit()//adding the tracks of medias
+
       console.log("got offer", offer)
       await connection.current.setRemoteDescription(offer)//setting as remote
 
-      await addShit()//adding the tracks of medias
       const answer = await connection.current.createAnswer()
       await connection.current.setLocalDescription(answer)
 
@@ -198,12 +199,13 @@ const Room = () => {
 
     connection.current.ontrack = async (e) => {
       if (e.track) {
+        console.log("remote track",e.track)
         if (!remoteRef.current) {
           remoteRef.current = new MediaStream();
           peer2Ref.current.srcObject = remoteRef.current;
         }
         remoteRef.current.addTrack(e.track);
-        peer2Ref.current.srcObject = remoteRef.current;
+        // peer2Ref.current.srcObject = remoteRef.current;
         console.log("🔊 Remote stream updated:", remoteRef.current);
       }
     };
