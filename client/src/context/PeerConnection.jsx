@@ -20,7 +20,6 @@ export const PeerProvider = ({ children }) => {
   //creating the peerConnetion
   const createConnection = () => {
     const newPeer = new RTCPeerConnection(servers);
-    // console.log("created peer RTC",newPeer)
     connection.current = newPeer
     return newPeer;
   };
@@ -38,7 +37,7 @@ export const PeerProvider = ({ children }) => {
     // Optional cleanup when PeerProvider unmounts
     return () => {
       if (connection.current) {
-        connection.current.close();
+        endConnection()
       }
     };
   }, []);

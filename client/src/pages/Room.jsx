@@ -10,13 +10,13 @@ const Room = () => {
   const peer = useContext(PeerContext)
   const room = useContext(RoomContext)
   const { connection, createConnection, endConnection } = peer
-  // let peerConnection =connection.current
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
   const streamRef = useRef(null)
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
+  const [isStarted,setIsStarted]=useState(false)
 
 
   //Initial establish the media of the user
@@ -104,12 +104,13 @@ const Room = () => {
   const handleLeave = (message) => {
     if (message) {
       console.log(message)
-      // handleNext()
     }
+    handleNext()
     console.log("another peer leaved intensionly")
   }
 
   const handleNext = () => {
+    console.log("Going with the next peer....")
     handleStop()
     handleStart()
   }
@@ -221,6 +222,7 @@ const Room = () => {
   const handleStart = async () => {
     //manually connecting to the socket server and the webRTC API
     if (!socket.connected) {
+      setIsStarted(true)
       console.log("starting the RTC connection")
       createConnection()
       socket.connect()
@@ -229,6 +231,9 @@ const Room = () => {
 
   //Ending the RTC connection
   const handleStop = () => {
+    if(!socket.connected && !connection.current) return
+
+    setIsStarted(false)
     endConnection()
     peer2Ref.current.srcObject = null
     remoteRef.current = null
@@ -251,7 +256,12 @@ const Room = () => {
 
       {/* Start,Stop,Next user features */}
       <div className="controls">
-        <button className='btn bg-green-500' onClick={handleStart}>Start</button>
+        <button className='btn bg-green-500' onClick={()=> isStarted ? handleNext() : handleStart()}>
+        {
+        isStarted ? "Next" : "Start"
+        }
+        </button>
+
         <button className='btn bg-orange-500' onClick={handleStop}>Stop</button>
       </div>
     </main>
