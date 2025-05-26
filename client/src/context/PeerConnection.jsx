@@ -27,6 +27,7 @@ export const PeerProvider = ({ children }) => {
 
   //Ending the webRTC connection
   const endConnection = () => {
+    console.log("Ending the connection")
     connection.current.close()
     connection.current = null
   }

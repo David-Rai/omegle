@@ -38,10 +38,7 @@ const Room = () => {
           handleLeave()
         }
       }
-
     }
-
-
     //Handling the socket connections
     if (socket.connected) {
       console.log("Already connected:", socket.id);
@@ -72,7 +69,7 @@ const Room = () => {
     });
 
     //when another users leaves
-    socket.on("leaved",handleLeave)
+    socket.on("leaved", handleLeave)
 
     return () => {
       socket.off("answer", handleAnswer)
@@ -81,7 +78,7 @@ const Room = () => {
       socket.off("create-offer", createOffer)
       socket.off("offer", handleOffer)
       socket.off("ice", handleICE)
-      socket.off("leaved",handleLeave)
+      socket.off("leaved", handleLeave)
     }
 
   }, [socket])
@@ -105,14 +102,14 @@ const Room = () => {
 
   //Handling when peer intensionly leaves
   const handleLeave = (message) => {
-    if(message){
-    console.log(message)
-    // handleNext()
+    if (message) {
+      console.log(message)
+      // handleNext()
     }
     console.log("another peer leaved intensionly")
   }
 
-  const handleNext=()=>{
+  const handleNext = () => {
     handleStop()
     handleStart()
   }
@@ -199,7 +196,7 @@ const Room = () => {
 
     connection.current.ontrack = async (e) => {
       if (e.track) {
-        console.log("remote track",e.track)
+        console.log("remote track", e.track)
         if (!remoteRef.current) {
           remoteRef.current = new MediaStream();
           peer2Ref.current.srcObject = remoteRef.current;
@@ -222,18 +219,20 @@ const Room = () => {
 
   //Starting WebRTC connection
   const handleStart = async () => {
-    console.log("starting the RTC connection")
-
     //manually connecting to the socket server and the webRTC API
-    createConnection()
-    socket.connect()
+    if (!socket.connected) {
+      console.log("starting the RTC connection")
+      createConnection()
+      socket.connect()
+    }
   }
 
   //Ending the RTC connection
   const handleStop = () => {
-    console.log("Ending the connection")
     endConnection()
-    socket.emit("stop",{roomName:room.current})
+    peer2Ref.current.srcObject = null
+    remoteRef.current = null
+    socket.emit("stop", { roomName: room.current })
     socket.disconnect()
   }
   const handleRefresh = () => {
