@@ -22,9 +22,9 @@ const Room = () => {
     console.log(peerConnection.connectionState)
   }, [peerConnection.connectionState])
 
-  useEffect(() => {
-    console.log(peer2Ref.current)
-  }, [peer2Ref.current])
+    // useEffect(() => {
+    //   console.log(peer2Ref.current)
+    // }, [peer2Ref.current])
 
 
   //Initial establish the media of the user
@@ -58,15 +58,19 @@ const Room = () => {
     //Getting the offer created
     socket.on("offer", handleOffer)
 
-    //manually connecting to the socket server
-    socket.connect()
-
     // Adding the new ICE Candidate
     socket.on("ice", handleICE);
 
     //Getting the SDP answer
     socket.on("answer", handleAnswer)
 
+    //connection error for socket io
+    socket.on("connect_error", (err) => {
+      console.log(`connect_error due to ${err.message}`);
+    });
+
+    //manually connecting to the socket server
+    socket.connect()
 
     return () => {
       socket.off("answer", handleAnswer)
@@ -101,6 +105,7 @@ const Room = () => {
     if (answer) {
       console.log("got answer", answer)
       await peerConnection.setRemoteDescription(answer)
+      await addICE()
     }
   }
   //Handling the candidate
@@ -108,7 +113,7 @@ const Room = () => {
     if (!peerConnection) return
 
     try {
-      console.log("new candidate", candidate)
+      // console.log("new candidate", candidate)
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       setIce(prev => [...prev, candidate]);
@@ -135,9 +140,11 @@ const Room = () => {
   const handleOffer = async (offer) => {
     if (offer) {
       await addShit()//adding the tracks of medias
+      console.log("got offer",offer)
       await peerConnection.setRemoteDescription(offer)//setting as remote
       await addICE()
       const answer = await peerConnection.createAnswer()
+      await peerConnection.setLocalDescription(answer)
       console.log("answer created", answer)
       socket.emit("answer", { answer, roomName: room.current })
     }
@@ -173,12 +180,16 @@ const Room = () => {
 
     peerConnection.ontrack = async (e) => {
       if (e.track) {
-        console.log("remote track",e.track)
-        const stream = new MediaStream()
-        stream.addTrack(e.track)
-        peer2Ref.current.srcObject = stream
+        if (!remoteRef.current) {
+          remoteRef.current = new MediaStream();
+          peer2Ref.current.srcObject = remoteRef.current;
+        }
+        remoteRef.current.addTrack(e.track);
+        // peer2Ref.current.srcObject = remoteRef.current;
+        console.log("🔊 Remote stream updated:", remoteRef.current);
       }
-    }
+    };
+    
 
     //ICE candidate generation and sending to the remote user
     peerConnection.onicecandidate = async (e) => {
