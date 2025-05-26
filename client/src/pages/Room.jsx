@@ -211,10 +211,18 @@ const Room = () => {
   return (
     <main>
       <button onClick={handleRefresh} className='btn cursor-pointer'>Refresh</button>
+    
+              {/* Videos of your and remote user */}
       <div className="videos flex">
         <video autoPlay playsInline ref={peer1Ref} className='w-1/2'></video>
         <video autoPlay playsInline ref={peer2Ref} className='bg-black w-1/2'></video>
       </div>
+
+               {/* Start,Stop,Next user features */}
+               <div className="controls">
+                <button className='btn bg-green-500'>Start</button>
+                <button className='btn bg-orange-500'>Stop</button>
+               </div>
     </main>
   )
 }
