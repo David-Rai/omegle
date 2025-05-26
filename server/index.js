@@ -21,10 +21,16 @@ const io = new Server(server, {
 
 //waiting queue
 let waiting = []
-
+let data={
+    waiting,
+    number:0,
+    socket_user:[]
+}
 //soccket handling
 io.on("connection", client => {
     console.log(client.id)
+    data.socket_user.push(client.id) 
+    data.number +=1
 
     //if no one exist wait
     if (waiting.length === 0) {
@@ -72,9 +78,14 @@ io.on("connection", client => {
 
 //routing
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.json(data);
 });
 
 server.listen(PORT, () => {
+    data={
+        waiting,
+        number:0,
+        socket_user:[]
+    }
     console.log(`Server running on port 1111`);
 });
