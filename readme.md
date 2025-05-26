@@ -1,6 +1,6 @@
-[!nodejs](https://img.shields.io/badge/Reactjs-blue)
-[!expressjs](https://img.shields.io/badge/Expressjs-green)
-[!socketio](https://img.shields.io/badge/socket-io-orange)
+![nodejs](https://img.shields.io/badge/Reactjs-blue)
+![expressjs](https://img.shields.io/badge/Expressjs-green)
+![socketio](https://img.shields.io/badge/socket-io-orange)
 
 # Omegle (P2P) Connection
 I made this for the practise and understanding the core architecture of omegle random video chat and the webRTC architecture
