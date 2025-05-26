@@ -16,18 +16,17 @@ const servers = {
 export const PeerProvider = ({ children }) => {
   const connection = useRef(null)
 
-  const setPeerConnection = async (newPeer) => {
-    connection.current = newPeer
-  }
 
+ //creating the peerConnetion
   const createConnection = () => {
     const newPeer = new RTCPeerConnection(servers);
-    setPeerConnection(newPeer);
+    // console.log("created peer RTC",newPeer)
+    connection.current=newPeer
     return newPeer;
   };
 
   useEffect(() => {
-    createConnection();
+    // createConnection();
 
     // Optional cleanup when PeerProvider unmounts
     return () => {
@@ -38,7 +37,7 @@ export const PeerProvider = ({ children }) => {
   }, []);
 
   return (
-    <PeerContext.Provider value={{ connection, setPeerConnection, createConnection }}>
+    <PeerContext.Provider value={{ connection, createConnection }}>
       {children}
     </PeerContext.Provider>
   );
