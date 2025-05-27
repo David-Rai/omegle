@@ -281,26 +281,27 @@ const Room = () => {
         <div className="w-1/2 h-full flex flex-col items-center justify-start p-3 gap-3">
           <button
             onClick={() => isStarted ? handleNext() : handleStart()}
-            className="controlBtn bg-[#52B98F]"
+            className="controlBtn bg-[#27c485] hover:bg-[#32db97]"
           >
             {isStarted ? "Next" : "Start"}
           </button>
 
           <button
             onClick={handleStop}
-            className="controlBtn  bg-[#E9AC99]"
+            className="controlBtn hover:bg-[#e6876a] bg-[#f47c57]"
           >
             Stop
           </button>
         </div>
 
         {/* Chat section */}
-        <div className="chat bg-white h-full w-1/2 rounded-b-2xl">
+        <div className="chat bg-white h-full w-1/2 rounded-b-2xl m-3 mt-0 shadow-lg">
           <div className="chats h-[80%]"></div>
 
-          <div className='bg-red-500 h-[20%] flex items-center border-t-2 border-slate-500'>
-            <input type="text" name="" id="" placeholder='Message' className='w-[80%] focus:border-none  h-full'/>
-            <button className='btn'><IoMdSend /></button>
+          <div className='h-[20%] flex items-center border-t-[1px] border-slate-300'>
+            <input type="text" name="" id="" placeholder='Message' className='w-[90%] pl-4 focus:border-none  h-full rounded-b-2xl'/>
+            <button className='w-[10%] h-full flex items-center justify-center'><IoMdSend size={30} className='text-blue-600'
+            /></button>
           </div>
         </div>
       </section>
