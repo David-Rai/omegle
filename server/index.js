@@ -86,9 +86,10 @@ io.on("connection", client => {
     })
 
     //getting the sended message from peer
-    client.on("message",({roomName,message})=>{
-        console.log("message sended^^^^^^^^^^^^^^^^^^^",message)
-        client.to(roomName).emit("message",message)
+    client.on("message",({roomName,message,name})=>{
+        console.log("message sended",message)
+        console.log("message by",name)
+        io.to(roomName).emit("message",{message,name})
     })
 })
 

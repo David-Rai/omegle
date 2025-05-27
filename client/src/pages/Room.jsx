@@ -10,7 +10,7 @@ import { RoomContext } from '../context/RoomName'
 const Room = () => {
   const socket = useContext(SocketContext)
   const peer = useContext(PeerContext)
-  const room = useContext(RoomContext)
+  const {room,username} = useContext(RoomContext)
   const { connection, createConnection, endConnection } = peer
   const peer1Ref = useRef(null)
   const peer2Ref = useRef(null)
@@ -18,8 +18,9 @@ const Room = () => {
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
-  const messageRef=useRef(null)
+  const messageRef = useRef(null)
   const [isStarted, setIsStarted] = useState(false)
+  const [messageList, setMessageList] = useState([])
 
 
   //Initial establish the media of the user
@@ -75,13 +76,13 @@ const Room = () => {
     });
 
     //Getting the sended message
-    socket.on("message",handleMessage)
+    socket.on("message", handleMessage)
 
     //when another users leaves
     socket.on("leaved", handleLeave)
 
     return () => {
-      socket.off("message",handleMessage)
+      socket.off("message", handleMessage)
       socket.off("answer", handleAnswer)
       socket.off("ice", handleICE)
       socket.off("joined", handleJoin)
@@ -120,6 +121,7 @@ const Room = () => {
   }
 
   const handleNext = () => {
+    setMessageList([])
     console.log("Going with the next peer....")
     handleStop()
     handleStart()
@@ -232,6 +234,7 @@ const Room = () => {
   const handleStart = async () => {
     //manually connecting to the socket server and the webRTC API
     if (!socket.connected) {
+      setMessageList([])
       setIsStarted(true)
       console.log("starting the RTC connection")
       createConnection()
@@ -240,13 +243,16 @@ const Room = () => {
   }
 
   //Handling the sended message
-  const handleMessage=(message)=>{
-    console.log("sended messgae",message)
+  const handleMessage = (message) => {
+    console.log("sended messgae", message)
+    setMessageList(prev => [...prev, message])
   }
+
   //Ending the RTC connection
   const handleStop = () => {
     if (!socket.connected && !connection.current) return
 
+    setMessageList([])
     setIsStarted(false)
     endConnection()
     peer2Ref.current.srcObject = null
@@ -254,16 +260,29 @@ const Room = () => {
     socket.emit("stop", { roomName: room.current })
     socket.disconnect()
   }
+
   //Sending message
-  const handleSend=()=>{
-    console.log("sending the message")
-   if(messageRef.current.value.trim() === ""){
-   return console.log("enter the message")
-   }
-   const message=messageRef.current.value
-   socket.emit("message",{roomName:room.current,message})
-   messageRef.current.value=""
+  const handleSend = () => {
+    if (messageRef.current.value.trim() === "") {
+      return console.log("enter the message")
+    }
+    const message = messageRef.current.value
+    socket.emit("message", { roomName: room.current, message,name:username.current })
+    messageRef.current.value = ""
   }
+
+  // Handle pressing Enter key to join room
+  useEffect(() => {
+    const handleEnter = (e) => {
+      if (e.key === 'Enter') {
+        handleSend();
+      }
+    };
+
+    document.addEventListener('keydown', handleEnter);
+    return () => document.removeEventListener('keydown', handleEnter);
+  }, []);
+
 
   const handleRefresh = () => {
     navigate("/")
@@ -317,11 +336,22 @@ const Room = () => {
 
         {/* Chat section */}
         <div className="chat bg-white h-full w-1/2 rounded-b-2xl m-3 mt-0 shadow-lg relative">
-        <p className="top absolute text-gray-600 w-full bg-white justify-start top-1 left-3 flex gap-1 items-center">Chat with eachother<IoMdChatbubbles /></p>
-          <div className="chats h-[80%]"></div>
+          <p className=" text-gray-600 w-full bg-white justify-start flex gap-1 items-center pl-3">Chat with eachother<IoMdChatbubbles /></p>
+            <div className="overflow-y-scroll overflow-x-hidden h-[70%] px-3">
+              {
+                messageList && messageList.map((message, index) => {
+                  return (
+                    <div key={index} className="bg-slate-300 rounded-md pl-2 text-slate-700 mt-3">
+                   <p className="text-blue-500">{message.name}</p>
+                   <h1>{message.message}</h1>
+                    </div>
+                  )
+                })
+              }
+          </div>
 
-          <div className='h-[20%] flex items-center border-t-[1px] border-slate-300'>
-            <input type="text" ref={messageRef} placeholder='Message' className='text-black w-[90%] pl-4 focus:border-none  h-full rounded-b-2xl'/>
+          <div className='h-[20%] lg:h-[30%] flex items-center border-t-[1px] border-slate-300'>
+            <input type="text" ref={messageRef} placeholder='Message' className='text-black w-[90%] pl-4 focus:border-none  h-full rounded-b-2xl' />
             <button className='w-[10%] h-full flex items-center justify-center' onClick={handleSend}><IoMdSend size={30} className='text-blue-600'
             /></button>
           </div>

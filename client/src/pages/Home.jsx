@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { RoomContext } from '../context/RoomName';
 
 const Home = () => {
   const nameRef = useRef(null); // Reference to the username input
   const authRef = useRef(null); // Reference to show error message
   const navigate = useNavigate();
+  const {username}=useContext(RoomContext)
 
   // Handle pressing Enter key to join room
   useEffect(() => {
@@ -28,6 +31,7 @@ const Home = () => {
       return;
     }
 
+    username.current=name
     authRef.current.innerText = '';
     navigate('/room');
   };
