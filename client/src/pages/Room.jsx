@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useState, useRef, useContext } from 'react'
 import { PeerContext } from '../context/PeerConnection'
+import { IoMdSend } from "react-icons/io";
 import { SocketContext } from '../context/Socket'
 import { useNavigate } from 'react-router-dom'
 import { RoomContext } from '../context/RoomName'
@@ -248,48 +249,62 @@ const Room = () => {
     window.location.reload()
   }
   return (
-<main className="w-full h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative">
-  {/* Refresh Button */}
-  <button
-    onClick={handleRefresh}
-    className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-md"
-  >
-    Refresh
-  </button>
+    <main className="w-full h-screen bg-gray-900 text-white flex flex-col relative">
+      {/* Refresh Button */}
+      <button
+        onClick={handleRefresh}
+        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-md"
+      >
+        Refresh
+      </button>
 
-  {/* Video Section */}
-  <div className="flex flex-col md:flex-row items-center justify-center w-full h-full px-4 gap-4">
-    <video
-      autoPlay
-      playsInline
-      ref={peer1Ref}
-      className="rounded-xl w-full md:w-1/2 max-h-[300px] md:max-h-[500px] object-cover bg-black shadow-lg"
-    ></video>
-    <video
-      autoPlay
-      playsInline
-      ref={peer2Ref}
-      className="rounded-xl w-full md:w-1/2 max-h-[300px] md:max-h-[500px] object-cover bg-black shadow-lg"
-    ></video>
-  </div>
+      {/* Video Section */}
+      <div className="flex  items-center justify-center w-full h-1/2 md:h-[60%] lg:h-[75%]">
+        <video
+          autoPlay
+          playsInline
+          ref={peer1Ref}
+          className="h-full w-1/2 object-cover bg-black shadow-lg"
+        ></video>
+        <video
+          autoPlay
+          playsInline
+          ref={peer2Ref}
+          className="h-full w-1/2 object-cover bg-black shadow-lg"
+        ></video>
+      </div>
 
-  {/* Control Buttons */}
-  <div className="fixed bottom-4 w-full flex items-center justify-center gap-4 px-4">
-    <button
-      onClick={() => isStarted ? handleNext() : handleStart()}
-      className="btn flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg"
-    >
-      {isStarted ? "Next" : "Start"}
-    </button>
+      {/* Bottom Section */}
+      <section className="bottom h-1/2 w-full md:h-[40%] lg:h-[25%]  bg-[#E3E3E3] flex">
 
-    <button
-      onClick={handleStop}
-      className="btn  flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg"
-    >
-      Stop
-    </button>
-  </div>
-</main>
+        {/* Controls button */}
+        <div className="w-1/2 h-full flex flex-col items-center justify-start p-3 gap-3">
+          <button
+            onClick={() => isStarted ? handleNext() : handleStart()}
+            className="controlBtn bg-[#52B98F]"
+          >
+            {isStarted ? "Next" : "Start"}
+          </button>
+
+          <button
+            onClick={handleStop}
+            className="controlBtn  bg-[#E9AC99]"
+          >
+            Stop
+          </button>
+        </div>
+
+        {/* Chat section */}
+        <div className="chat bg-white h-full w-1/2 rounded-b-2xl">
+          <div className="chats h-[80%]"></div>
+
+          <div className='bg-red-500 h-[20%] flex items-center border-t-2 border-slate-500'>
+            <input type="text" name="" id="" placeholder='Message' className='w-[80%] focus:border-none  h-full'/>
+            <button className='btn'><IoMdSend /></button>
+          </div>
+        </div>
+      </section>
+    </main>
 
   )
 }

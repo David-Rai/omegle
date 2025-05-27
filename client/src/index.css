@@ -4,5 +4,8 @@
     .btn{
         @apply h-[40px] w-[120px] border-none bg-red-400;
     }
+    .controlBtn{
+        @apply btn flex items-center justify-center transition-all w-full h-[80px] rounded-md;
+    }
 }
 @tailwind utilities;
