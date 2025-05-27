@@ -80,8 +80,15 @@ io.on("connection", client => {
         client.to(roomName).emit("leaved","next should be implemented")
     })
 
+    //when any client disconnects notify another
     client.on("disconnect",()=>{
         client.to(client.roomName).emit("leaved","next should be implemented")
+    })
+
+    //getting the sended message from peer
+    client.on("message",({roomName,message})=>{
+        console.log("message sended^^^^^^^^^^^^^^^^^^^",message)
+        client.to(roomName).emit("message",message)
     })
 })
 

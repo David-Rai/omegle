@@ -5,7 +5,7 @@
         @apply h-[40px] w-[120px] border-none bg-red-400;
     }
     .controlBtn{
-        @apply btn flex items-center justify-center text-2xl transition-all w-full h-[80px] shadow-lg rounded-md;
+        @apply btn flex items-center justify-center text-2xl transition-all w-full h-[80px] shadow-lg rounded-md lg:h-full lg:w-1/2;
     }
 }
 @tailwind utilities;

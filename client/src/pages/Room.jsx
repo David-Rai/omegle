@@ -1,3 +1,4 @@
+import { IoMdChatbubbles } from "react-icons/io";
 import React, { useEffect } from 'react'
 import { useState, useRef, useContext } from 'react'
 import { PeerContext } from '../context/PeerConnection'
@@ -17,6 +18,7 @@ const Room = () => {
   const remoteRef = useRef(null)
   const [ice, setIce] = useState([])
   const navigate = useNavigate()
+  const messageRef=useRef(null)
   const [isStarted, setIsStarted] = useState(false)
 
 
@@ -72,10 +74,14 @@ const Room = () => {
       console.log(`connect_error due to ${err.message}`);
     });
 
+    //Getting the sended message
+    socket.on("message",handleMessage)
+
     //when another users leaves
     socket.on("leaved", handleLeave)
 
     return () => {
+      socket.off("message",handleMessage)
       socket.off("answer", handleAnswer)
       socket.off("ice", handleICE)
       socket.off("joined", handleJoin)
@@ -233,6 +239,10 @@ const Room = () => {
     }
   }
 
+  //Handling the sended message
+  const handleMessage=(message)=>{
+    console.log("sended messgae",message)
+  }
   //Ending the RTC connection
   const handleStop = () => {
     if (!socket.connected && !connection.current) return
@@ -244,6 +254,17 @@ const Room = () => {
     socket.emit("stop", { roomName: room.current })
     socket.disconnect()
   }
+  //Sending message
+  const handleSend=()=>{
+    console.log("sending the message")
+   if(messageRef.current.value.trim() === ""){
+   return console.log("enter the message")
+   }
+   const message=messageRef.current.value
+   socket.emit("message",{roomName:room.current,message})
+   messageRef.current.value=""
+  }
+
   const handleRefresh = () => {
     navigate("/")
     window.location.reload()
@@ -278,7 +299,7 @@ const Room = () => {
       <section className="bottom h-1/2 w-full md:h-[40%] lg:h-[25%]  bg-[#E3E3E3] flex">
 
         {/* Controls button */}
-        <div className="w-1/2 h-full flex flex-col items-center justify-start p-3 gap-3">
+        <div className="w-1/2 h-full flex flex-col items-center justify-start p-3 gap-3 lg:flex-row">
           <button
             onClick={() => isStarted ? handleNext() : handleStart()}
             className="controlBtn bg-[#27c485] hover:bg-[#32db97]"
@@ -295,12 +316,13 @@ const Room = () => {
         </div>
 
         {/* Chat section */}
-        <div className="chat bg-white h-full w-1/2 rounded-b-2xl m-3 mt-0 shadow-lg">
+        <div className="chat bg-white h-full w-1/2 rounded-b-2xl m-3 mt-0 shadow-lg relative">
+        <p className="top absolute text-gray-600 w-full bg-white justify-start top-1 left-3 flex gap-1 items-center">Chat with eachother<IoMdChatbubbles /></p>
           <div className="chats h-[80%]"></div>
 
           <div className='h-[20%] flex items-center border-t-[1px] border-slate-300'>
-            <input type="text" name="" id="" placeholder='Message' className='w-[90%] pl-4 focus:border-none  h-full rounded-b-2xl'/>
-            <button className='w-[10%] h-full flex items-center justify-center'><IoMdSend size={30} className='text-blue-600'
+            <input type="text" ref={messageRef} placeholder='Message' className='text-black w-[90%] pl-4 focus:border-none  h-full rounded-b-2xl'/>
+            <button className='w-[10%] h-full flex items-center justify-center' onClick={handleSend}><IoMdSend size={30} className='text-blue-600'
             /></button>
           </div>
         </div>
