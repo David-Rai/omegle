@@ -7,30 +7,38 @@ const http = require("http")
 
 
 app.use(express.json());
-app.use(cors())
+app.use(cors({
+    origin: [
+        "https://omegla.netlify.app"
+        , "https://omegla.netlify.app/"
+    ]
+}))
 
 
 //creating the socket and the routing instance
 const server = http.createServer(app)
 const io = new Server(server, {
     cors: {
-        origin: "*"
+        origin: [
+            "https://omegla.netlify.app"
+            , "https://omegla.netlify.app/"
+        ]
     }
 })
 
 
 //waiting queue
 let waiting = []
-let data={
+let data = {
     waiting,
-    number:0,
-    socket_user:[]
+    number: 0,
+    socket_user: []
 }
 //soccket handling
 io.on("connection", client => {
     console.log(client.id)
-    data.socket_user.push(client.id) 
-    data.number +=1
+    data.socket_user.push(client.id)
+    data.number += 1
 
     //if no one exist wait
     if (waiting.length === 0) {
@@ -47,27 +55,27 @@ io.on("connection", client => {
         waiting[0].join(roomName)
 
         //storing the room
-        client.roomName=roomName
-        waiting[0].roomName=roomName
+        client.roomName = roomName
+        waiting[0].roomName = roomName
 
         waiting[0].emit("create-offer")//saying to generate the offer
-        
 
-        io.to(roomName).emit("joined",roomName)//joined message
-        
+
+        io.to(roomName).emit("joined", roomName)//joined message
+
         waiting.pop()//clearing the waiting list
     }
 
 
     //WebRTC connection handling
-    client.on("offer",({offer,roomName})=>{
+    client.on("offer", ({ offer, roomName }) => {
         console.log(roomName)
-        client.to(roomName).emit("offer",offer)
+        client.to(roomName).emit("offer", offer)
     })
 
     //handling the SDP offer creation
-    client.on("answer",({answer,roomName})=>{
-        client.to(roomName).emit("answer",answer)
+    client.on("answer", ({ answer, roomName }) => {
+        client.to(roomName).emit("answer", answer)
     })
 
     //Handling the new ice candidate
@@ -76,20 +84,20 @@ io.on("connection", client => {
     })
 
     //stoping the calls
-    client.on("stop",({roomName})=>{
-        client.to(roomName).emit("leaved","next should be implemented")
+    client.on("stop", ({ roomName }) => {
+        client.to(roomName).emit("leaved", "next should be implemented")
     })
 
     //when any client disconnects notify another
-    client.on("disconnect",()=>{
-        client.to(client.roomName).emit("leaved","next should be implemented")
+    client.on("disconnect", () => {
+        client.to(client.roomName).emit("leaved", "next should be implemented")
     })
 
     //getting the sended message from peer
-    client.on("message",({roomName,message,name})=>{
-        console.log("message sended",message)
-        console.log("message by",name)
-        io.to(roomName).emit("message",{message,name})
+    client.on("message", ({ roomName, message, name }) => {
+        console.log("message sended", message)
+        console.log("message by", name)
+        io.to(roomName).emit("message", { message, name })
     })
 })
 
@@ -99,10 +107,10 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-    data={
+    data = {
         waiting,
-        number:0,
-        socket_user:[]
+        number: 0,
+        socket_user: []
     }
     console.log(`Server running on port 1111`);
 });

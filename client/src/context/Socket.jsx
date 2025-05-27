@@ -5,7 +5,7 @@ export const SocketContext = createContext(null)
 
 //socket provider function
 export const SocketProvider = ({ children }) => {
-    const socket = useRef(io("http://localhost:1111",{autoConnect:false,
+    const socket = useRef(io("https://omegle-nz6g.onrender.com/",{autoConnect:false,
         reconnection:true,
         reconnectionAttempts:Infinity,
         reconnectionDelay:1000,
