@@ -28,7 +28,7 @@ const Room = () => {
 
     //adding the local medias
     async function getMedias() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       peer1Ref.current.srcObject = stream
       streamRef.current = stream
     }
