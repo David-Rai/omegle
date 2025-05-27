@@ -22,5 +22,6 @@ I made this for the practise and understanding the core architecture of omegle r
 - cors for cross section policy bypass
 - Express js for routing
 
-## Architecture
+## Prototype
+<img src="./architecture/design.png">
 
