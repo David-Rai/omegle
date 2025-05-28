@@ -8,7 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import { RoomContext } from '../context/RoomName'
 
 const Room = () => {
-  const socket = useContext(SocketContext)
+  const data = useContext(SocketContext)
+  const socket=data?.current
   const peer = useContext(PeerContext)
   const {room,username} = useContext(RoomContext)
   const { connection, createConnection, endConnection } = peer
@@ -28,8 +29,14 @@ const Room = () => {
 
     //adding the local medias
     async function getMedias() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio:{
+        echoCancellation:true,
+        noiseSuppression:true,
+        autoGainControl:true
+      } })
+
       peer1Ref.current.srcObject = stream
+      peer1Ref.current.muted = true
       streamRef.current = stream
     }
     getMedias()

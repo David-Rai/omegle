@@ -11,6 +11,8 @@ app.use(cors({
     origin: [
         "https://omegla.netlify.app"
         , "https://omegla.netlify.app/"
+        , "http://localhost:5173/"
+        , "http://localhost:5173"
     ]
 }))
 
@@ -22,8 +24,11 @@ const io = new Server(server, {
         origin: [
             "https://omegla.netlify.app"
             , "https://omegla.netlify.app/"
+            , "http://localhost:5173/"
+            , "http://localhost:5173"
         ]
     }
+
 })
 
 

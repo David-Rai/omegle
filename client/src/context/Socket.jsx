@@ -9,14 +9,14 @@ export const SocketProvider = ({ children }) => {
     const socket = useRef(null)
 
     useEffect(() => {
-        socket.current = useRef(io("https://omegle-nz6g.onrender.com/", {
+        socket.current =io("http://localhost:1111", {
             autoConnect: false,
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             timeout: 1111
-        }))
+        })
 
         return () => {
             socket.current.disconnect()
@@ -24,7 +24,7 @@ export const SocketProvider = ({ children }) => {
     }, [])
 
     return (
-        <SocketContext.Provider value={socket.current}>
+        <SocketContext.Provider value={socket}>
             {children}
         </SocketContext.Provider>
     )
