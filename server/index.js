@@ -8,12 +8,10 @@ const http = require("http")
 
 app.use(express.json());
 app.use(cors({
-    origin:"*"
-
-    // origin: [
-    //     "https://omegla.netlify.app"
-    //     , "https://omegla.netlify.app/"
-    // ]
+    origin: [
+        "https://omegla.netlify.app"
+        , "https://omegla.netlify.app/"
+    ]
 }))
 
 
@@ -21,11 +19,10 @@ app.use(cors({
 const server = http.createServer(app)
 const io = new Server(server, {
     cors: {
-        origin:"*"
-        // origin: [
-        //     "https://omegla.netlify.app"
-        //     , "https://omegla.netlify.app/"
-        // ]
+        origin: [
+            "https://omegla.netlify.app"
+            , "https://omegla.netlify.app/"
+        ]
     }
 })
 
@@ -66,7 +63,7 @@ io.on("connection", client => {
 
         io.to(roomName).emit("joined", roomName)//joined message
 
-        waiting.pop()//clearing the waiting list
+        waiting=[]//clearing the waiting list
     }
 
 
@@ -93,7 +90,12 @@ io.on("connection", client => {
 
     //when any client disconnects notify another
     client.on("disconnect", () => {
+        waiting = waiting.filter(c => c.id !== client.id);
+        if(client.roomName){
         client.to(client.roomName).emit("leaved", "next should be implemented")
+        client.leave(client.roomName);  // this is optional, socket.io auto removes on disconnect
+        client.roomName = null;
+        }
     })
 
     //getting the sended message from peer

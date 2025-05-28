@@ -6,7 +6,7 @@ import { IoMdSend } from "react-icons/io";
 import { SocketContext } from '../context/Socket'
 import { useNavigate } from 'react-router-dom'
 import { RoomContext } from '../context/RoomName'
-import waitingGif from '../assets/wait.gif'
+import waitingGif from '../assets/loading.mp4'
 import { toast } from 'react-toastify';
 
 const Room = () => {
@@ -47,15 +47,21 @@ const Room = () => {
         if (state === 'disconnected' || state === 'failed' || state === 'closed') {
           handleLeave()
         }
+
+        if(connection.current.iceConnectionState === "connected"){ 
+          toast.success("both are connected")
+        }
       }
     }
 
     //Handling the socket connections
     if (socket.connected) {
       console.log("Already connected:", socket.id);
+      toast.success("connected to server")
     } else {
       socket.on("connect", () => {
         console.log("Connected to:", socket.id);
+      toast.success("connected to server")
       });
     }
 
@@ -299,10 +305,11 @@ const Room = () => {
           ref={peer1Ref}
           className="h-full w-1/2 object-cover bg-black shadow-lg"
         ></video>
-        <video
+          <video
           autoPlay
           playsInline
           ref={peer2Ref}
+          src={peer2Ref.srcObject ? null : waitingGif}
           className="h-full w-1/2 object-cover bg-black shadow-lg"
         ></video>
       </div>
