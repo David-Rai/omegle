@@ -30,6 +30,7 @@ const Room = () => {
     async function getMedias() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       peer1Ref.current.srcObject = stream
+      peer1Ref.current.muted=true
       streamRef.current = stream
     }
     getMedias()

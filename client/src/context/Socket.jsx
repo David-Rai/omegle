@@ -14,8 +14,6 @@ export const SocketProvider = ({ children }) => {
     }))
 
     useEffect(() => {
-        socket.current = io("http://localhost:1111",{autoConnect:false})
-
         return () => {
             socket.current.disconnect()
         }
