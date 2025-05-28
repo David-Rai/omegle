@@ -6,6 +6,8 @@ import { IoMdSend } from "react-icons/io";
 import { SocketContext } from '../context/Socket'
 import { useNavigate } from 'react-router-dom'
 import { RoomContext } from '../context/RoomName'
+import waitingGif from '../assets/wait.gif'
+import { toast } from 'react-toastify';
 
 const Room = () => {
   const socket = useContext(SocketContext)
@@ -21,6 +23,7 @@ const Room = () => {
   const messageRef = useRef(null)
   const [isStarted, setIsStarted] = useState(false)
   const [messageList, setMessageList] = useState([])
+  const [isRemote,setIsRemote]=useState(false)
 
 
   //Initial establish the media of the user
@@ -73,7 +76,7 @@ const Room = () => {
 
     //connection error for socket io
     socket.on("connect_error", (err) => {
-      alert(`connect_error due to ${err.message}`);
+    toast.error(`connect_error due to ${err.message}`);
     });
 
     //Getting the sended message

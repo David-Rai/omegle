@@ -7,6 +7,8 @@ import Home from './pages/Home.jsx'
 import Room from './pages/Room.jsx'
 import { PeerProvider } from './context/PeerConnection.jsx'
 import { RoomProvider } from './context/RoomName.jsx'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,7 @@ createRoot(document.getElementById('root')).render(
     <PeerProvider>
       <RoomProvider>
         <RouterProvider router={router} />
+        <ToastContainer position="top-right" autoClose={1500} />
       </RoomProvider>
     </PeerProvider>
   </SocketProvider>

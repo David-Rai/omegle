@@ -8,10 +8,12 @@ const http = require("http")
 
 app.use(express.json());
 app.use(cors({
-    origin: [
-        "https://omegla.netlify.app"
-        , "https://omegla.netlify.app/"
-    ]
+    origin:"*"
+
+    // origin: [
+    //     "https://omegla.netlify.app"
+    //     , "https://omegla.netlify.app/"
+    // ]
 }))
 
 
@@ -19,10 +21,11 @@ app.use(cors({
 const server = http.createServer(app)
 const io = new Server(server, {
     cors: {
-        origin: [
-            "https://omegla.netlify.app"
-            , "https://omegla.netlify.app/"
-        ]
+        origin:"*"
+        // origin: [
+        //     "https://omegla.netlify.app"
+        //     , "https://omegla.netlify.app/"
+        // ]
     }
 })
 
