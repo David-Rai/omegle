@@ -5,16 +5,18 @@ export const SocketContext = createContext(null)
 
 //socket provider function
 export const SocketProvider = ({ children }) => {
-    const socket = useRef(io("https://omegle-nz6g.onrender.com/",{autoConnect:false,
-        reconnection:true,
-        reconnectionAttempts:Infinity,
-        reconnectionDelay:1000,
-        reconnectionDelayMax:5000,
-        timeout:1111
-    }))
+
+    const socket = useRef(null)
 
     useEffect(() => {
-        socket.current = io("http://localhost:1111",{autoConnect:false})
+        socket.current = useRef(io("https://omegle-nz6g.onrender.com/", {
+            autoConnect: false,
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 1111
+        }))
 
         return () => {
             socket.current.disconnect()
